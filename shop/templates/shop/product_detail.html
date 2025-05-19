@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block carousel %}
+{% endblock carousel %}
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block main %}
+<style>
+    .container {
+        max-width: 1000px;
+        margin: auto;
+        padding: 20px;
+    }
+    .product-card {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        align-items: center;
+    }
+    .product-img {
+        width: 100%;
+        max-width: 400px;
+        border-radius: 10px;
+    }
+    .product-info {
+        flex: 1;
+        min-width: 250px;
+    }
+    .price {
+        font-size: 24px;
+        font-weight: bold;
+        color: #27ae60;
+    }
+    .btn-group {
+        display: flex;
+        gap: 10px;
+        margin-top: 10px;
+    }
+    .btn-buy {
+        background: #3498db;
+        color: white;
+    }
+    .btn-buy:hover {
+        background: #2980b9;
+    }
+    .btn-favorite {
+        background: #e74c3c;
+        color: white;
+    }
+    .btn-favorite:hover {
+        background: #c0392b;
+    }
+    .reviews {
+        margin-top: 20px;
+        background: #f9f9f9;
+        padding: 15px;
+        border-radius: 10px;
+    }
+    .review {
+        border-bottom: 1px solid #ddd;
+        padding: 10px 0;
+    }
+    .review:last-child {
+        border-bottom: none;
+    }
+    .rating {
+        color: gold;
+    }
+    .review-form {
+        margin-top: 20px;
+        background: white;
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    @media (max-width: 768px) {
+        .product-card {
+            flex-direction: column;
+            text-align: center;
+        }
+        .btn-group {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<div class="container">
+    <div class="product-card">
+        <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-img">
+        <div class="product-info">
+            <h2>{{ product.name }}</h2>
+            <p>{{ product.description }}</p>
+            <p class="price">Цена: {{ product.price }} UZS</p>
+
+            <div class="btn-group">
+                <form action="{% url 'shop_cart:cart_add' product.id %}" method="post">
+                    {% csrf_token %}
+                    <button class="btn btn-buy">
+                        🛒 В корзину
+                    </button>
+                </form>
+
+                <form action="{% url 'shop:toggle_favorite' product.id %}" method="post">
+                    {% csrf_token %}
+                    <button class="btn btn-favorite">
+                        ❤️ В избранное
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="reviews">
+        <h3>Отзывы</h3>
+        {% for review in product.reviews.all %}
+        <div class="review">
+            <strong>{{ review.user.username }}</strong>
+            <p>{{ review.comment }}</p>
+            <div class="rating">
+                {% for _ in ""|center:review.rating %}⭐{% endfor %}
+            </div>
+            <small>Оценка: {{ review.rating }}/5</small>
+        </div>
+        {% empty %}
+        <p>Отзывов пока нет.</p>
+        {% endfor %}
+    </div>
+
+    {% if user.is_authenticated %}
+    <div class="review-form">
+        <h3>Оставить отзыв</h3>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit" class="btn btn-buy">Отправить отзыв</button>
+        </form>
+    </div>
+    {% else %}
+    <p>
+        <a href="{% url 'login_url' %}" class="btn btn-primary">Войдите</a> , чтобы оставить отзыв.
+    </p>
+
+    {% endif %}
+</div>
+{% endblock %}

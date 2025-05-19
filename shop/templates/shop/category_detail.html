@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block carousel %}
+{% endblock carousel %}
+
+{% block title %}
+{{ category.name }}
+{% endblock %}
+
+{% block main %}
+<style>
+    .container {
+        max-width: 1200px;
+        margin: auto;
+        padding: 20px;
+    }
+    .card {
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        overflow: hidden;
+        transition: transform 0.3s ease-in-out;
+        background: #fff;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .card:hover {
+        transform: scale(1.05);
+    }
+    .card img {
+        width: 100%;
+        height: 350px;
+        object-fit: cover;
+    }
+    .card-body {
+        padding: 15px;
+        text-align: center;
+    }
+    .card-title {
+        font-size: 1.2em;
+        margin-bottom: 10px;
+        color: #333;
+    }
+    .card-text {
+        font-size: 0.9em;
+        color: #666;
+    }
+    .price {
+        font-weight: bold;
+        color: #27ae60;
+    }
+    .buttons {
+        display: flex;
+        justify-content: space-around;
+        margin-top: 10px;
+    }
+    .btn {
+        padding: 8px 12px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+    .btn-buy {
+        background: #3498db;
+        color: white;
+    }
+    .btn-buy:hover {
+        background: #2980b9;
+    }
+
+    .btn-favorite:hover {
+        background:  #ff0000;
+    }
+    .btn-cart {
+
+    }
+    .btn-cart:hover {
+
+    }
+</style>
+
+<div class="container">
+    <h2 style="text-align: center;">{{ category.name }}</h2>
+    <p style="text-align: center; color: #666;">Товары в этой категории:</p>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;">
+        {% for product in products %}
+        <div class="card" style="width: 350px;">
+            <a href="{% url 'shop:product_detail' product.id %}">
+                <img src="{{ product.image.url }}" alt="{{ product.name }}">
+            </a>
+
+
+            <div class="card-body">
+                <h5 class="card-title">
+                    <a href="{% url 'shop:product_detail' product.id %}" class="product-title">
+                        {{ product.name }}
+                    </a>
+                </h5>
+
+                <p class="price">Цена: {{ product.price }} UZS</p>
+                <div class="buttons">
+
+
+                    <button class="favorite-btn" data-product-id="{{ product.id }}">
+                        {% if product in user.favorites.all %}
+                        <i class="fa-solid fa-heart" style="color: red;"></i> <!-- Красное сердце -->
+                        {% else %}
+                        <i class="fa-regular fa-heart" style="color: black;"></i> <!-- Пустое сердце -->
+                        {% endif %}
+                    </button>
+
+
+                    <form action="{% url 'shop_cart:cart_add' product.id %}" method="post">
+                        {% csrf_token %}
+                        <button class="btn btn-primary add-to-cart" data-product-id="{{ product.id }}">
+                            Добавить в корзину
+                        </button>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <p style="text-align: center; color: #666;">В этой категории пока нет товаров.</p>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".add-to-cart").forEach(button => {
+            button.addEventListener("click", function (event) {
+                event.preventDefault();  // Отключаем переход по ссылке
+
+                let productId = this.getAttribute("data-product-id");
+                let url = `/cart/add/${productId}/`;
+                let csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+                fetch(url, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": csrfToken,
+                        "X-Requested-With": "XMLHttpRequest"
+                    }
+                }).then(response => response.json())
+                  .then(data => {
+                      if (data.success) {
+                          updateCartCount(data.cart_count);
+                      }
+                  });
+            });
+        });
+
+function updateCartCount(count) {
+    let cartBadge = document.getElementById("cart-count-badge");
+    if (cartBadge) {
+        cartBadge.textContent = count;
+    }
+}
+    });
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".favorite-btn").forEach(button => {
+            button.addEventListener("click", function () {
+                let productId = this.dataset.productId;
+                let url = `/favorite/${productId}/`;
+
+
+fetch(url, {
+    method: "POST",
+    headers: {
+        "X-CSRFToken": document.querySelector('[name=csrfmiddlewaretoken]').value,
+        "X-Requested-With": "XMLHttpRequest"
+    },
+})
+.then(response => response.json())
+.then(data => {
+    if (data.status === "added") {
+        this.innerHTML = "❤️";
+    } else {
+        this.innerHTML = "🤍";
+    }
+    updateFavoriteCount(); // ✅ Обновляем счетчик сразу после изменения
+})
+.catch(error => console.error("Ошибка:", error));
+
+            });
+        });
+    });
+</script>
+<style>
+    .product-title {
+        color: black;
+        text-decoration: none;
+    }
+</style>
+
+{% endblock %}

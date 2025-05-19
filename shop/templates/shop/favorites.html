@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block carousel %}
+{% endblock carousel %}
+{% block title %}Избранное{% endblock %}
+
+{% block main %}
+<style>
+    .container {
+        max-width: 1200px;
+        margin: auto;
+        padding: 20px;
+    }
+    .card {
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        overflow: hidden;
+        transition: transform 0.3s ease-in-out;
+        background: #fff;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .card:hover {
+        transform: scale(1.05);
+    }
+    .card img {
+        width: 100%;
+        height: 300px;
+        object-fit: cover;
+    }
+    .card-body {
+        padding: 15px;
+        text-align: center;
+    }
+    .card-title {
+        font-size: 1.2em;
+        margin-bottom: 10px;
+        color: #333;
+    }
+    .btn-remove {
+        background: red;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+    .btn-remove:hover {
+        background: darkred;
+    }
+</style>
+
+<div class="container">
+    <h2 style="text-align: center;">Избранные товары</h2>
+    <p style="text-align: center; color: #666;">Ваши избранные товары:</p>
+
+    <div style="display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;">
+        {% for favorite in favorites %}
+        <div class="card" style="width: 350px;">
+            <a href="{% url 'shop:product_detail' favorite.product.id %}">
+                <img src="{{ favorite.product.image.url }}" alt="{{ favorite.product.name }}">
+            </a>
+
+            <div class="card-body">
+                <h5 class="card-title">
+                    <a href="{% url 'shop:product_detail' favorite.product.id %}" class="product-title">
+                        {{ favorite.product.name }}
+                    </a>
+                </h5>
+                <p class="price">Цена: {{ favorite.product.price }} UZS</p>
+                <form method="post" action="{% url 'shop:toggle_favorite' favorite.product.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">Удалить</button>
+                </form>
+            </div>
+        </div>
+        {% empty %}
+        <p style="text-align: center; color: #666;">Вы пока не добавили товары в избранное.</p>
+        {% endfor %}
+
+
+
+
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll(".btn-remove").forEach(button => {
+            button.addEventListener("click", function () {
+                let productId = this.dataset.productId;
+                let url = `/favorite/${productId}/`;
+
+                fetch(url, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": getCookie("csrftoken"),
+                        "X-Requested-With": "XMLHttpRequest"
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "removed") {
+                        this.closest(".card").remove(); // Удаляем карточку товара
+                        updateFavoriteCount(); // Обновляем счетчик избранного
+                    }
+                })
+                .catch(error => console.error("Ошибка при удалении:", error));
+            });
+        });
+    });
+
+    function updateFavoriteCount() {
+        fetch("{% url 'shop:favorites_count' %}", {
+            headers: { "X-Requested-With": "XMLHttpRequest" }
+        })
+        .then(response => response.json())
+        .then(data => {
+            let favoriteBadge = document.getElementById("favorite-count-badge");
+            if (favoriteBadge) {
+                favoriteBadge.textContent = data.favorite_count;
+                favoriteBadge.style.display = data.favorite_count > 0 ? "inline-block" : "none";
+            }
+        })
+        .catch(error => console.error("Ошибка обновления избранного:", error));
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            document.cookie.split(';').forEach(cookie => {
+                let trimmedCookie = cookie.trim();
+                if (trimmedCookie.startsWith(name + '=')) {
+                    cookieValue = decodeURIComponent(trimmedCookie.substring(name.length + 1));
+                }
+            });
+        }
+        return cookieValue;
+    }
+
+</script>
+        <style>
+            .product-title {
+                color: black;
+                text-decoration: none;
+            }
+        </style>
+
+{% endblock %}

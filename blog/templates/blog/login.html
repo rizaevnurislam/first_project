@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+{{ title }}
+{% endblock title %}
+{% block logo %}
+
+{% endblock logo %}
+{% block carousel %}
+
+{% endblock carousel %}
+{% block main %}
+<div class="form-container">
+    <h2>Вход в аккаунт</h2>
+    <form action="{% url 'login_url' %}" method="POST">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Войти</button>
+    </form>
+    <div class="signup-link">
+        <p>У вас нет аккаунта? <a href="{% url 'registration_url' %}">Зарегистрироваться</a></p>
+    </div>
+    {% if errors %}
+    <ul>
+        {% for field, error_list in errors.items %}
+        {% for error in error_list %}
+        <li>{{ error }}</li>
+        {% endfor %}
+        {% endfor %}
+    </ul>
+    {% endif %}
+</div>
+<style>
+    .form-container {
+        background: #fff;
+        padding: 20px 30px;
+        border-radius: 10px;
+        box-shadow: 0 9px 9px rgba(0, 0, 0, 0.4);
+        width: 450px;
+        margin: 50px auto;
+    }
+    .form-container h2 {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    .form-container label {
+        display: block;
+        margin: 10px 0 5px;
+        font-weight: bold;
+    }
+    .form-container input {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        font-size: 16px;
+    }
+    .form-container button {
+        width: 100%;
+        padding: 10px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        font-size: 16px;
+        cursor: pointer;
+        text-align: center;
+    }
+    .form-container button:hover {
+        background-color: #0056b3;
+    }
+    .form-container .signup-link {
+        text-align: center;
+        margin-top: 10px;
+    }
+    .form-container .signup-link a {
+        color: #007bff;
+        text-decoration: none;
+    }
+    .form-container .signup-link a:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock main %}

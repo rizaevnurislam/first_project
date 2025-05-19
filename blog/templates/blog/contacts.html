@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Контакты
+{% endblock title %}
+
+{% block carousel %}
+
+{% endblock carousel %}
+
+{% block main %}
+<div id="contact" class="container bg-grey">
+    <h2 class="" style="margin-top: 10px;
+    font-size: 43px;
+    margin-bottom: 0;"><b>Контакты</b></h2>
+    <hr style="color: grey;">
+    <div class="row">
+        <div class="col-sm-5">
+            <p style="padding-top: 20px;margin-bottom: -4px;">(ru)</p>
+            <p style="font-size: 20px;"><span class="glyphicon glyphicon-phone"></span><strong> +998 90 021 65 04
+            </strong></p>
+            <p style="margin-bottom: -4px;">Ташкент</p>
+            <p style="font-size: 20px;margin-bottom: 9px"><span class="glyphicon glyphicon-phone"></span> <strong>+998
+                99 555 55
+                99</strong></p>
+
+            <div class="fa-regular fa-clock" style="color: #cfcfcf;margin-bottom: 29px;">
+                <span style="color:black;">Прием звонков: с 14:00 до 22:00</span>
+            </div>
+
+
+            <p style="margin-bottom: 2px;"><b>Адрес</b></p>
+            <p style="font-weight: 450; font-size: 17px;">Узбекистан, г. Ташкент, Яшнабадский район</p>
+            <p style="margin-bottom: 2px;"><b>Реквизиты компании</b></p>
+            <p style="font-weight: 500;">RN "SportX "</p>
+
+
+
+
+        </div>
+
+
+    </div>
+</div>
+<script src="https://api-maps.yandex.ru/2.1/?lang=ru_RU" type="text/javascript"></script>
+<style>
+    #map {
+        width: 90%;
+        height: 500px;
+        z-index: 2500;
+        margin-left: 107px;
+        position: total-center;
+    }
+</style>
+
+<body>
+
+<div id="map"></div>
+<script>
+    ymaps.ready(init);
+
+    function init() {
+
+        const myMap = new ymaps.Map("map", {
+            center: [41.2995, 69.2401],
+            zoom: 10
+        });
+
+
+        const myPlacemark = new ymaps.Placemark([41.2995, 69.2401], {
+            balloonContent: 'Это ваш офис в Ташкенте!'
+        });
+
+        myMap.geoObjects.add(myPlacemark);
+    }
+</script>
+</body>
+
+
+{% endblock main %}

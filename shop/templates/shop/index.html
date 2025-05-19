@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block carousel %}
+{% endblock carousel %}
+{% block title %}
+Главная страница
+{% endblock %}
+
+{% block main %}
+
+<div class="search-container">
+    <input type="text" id="search-input" class="search-input" placeholder="Хочу купить...">
+    <button id="search-button" class="search-button">
+        <i class="fas fa-search"></i>
+    </button>
+</div>
+
+<style>
+    .search-container {
+        display: flex;
+        align-items: center;
+        background: #f4f4f4;
+        border-radius: 30px;
+        padding: 5px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        transition: 0.3s;
+    }
+
+    .search-container:focus-within {
+        background: #001f4d;
+        box-shadow: 0 0 10px #004aad;
+    }
+
+    .search-input {
+        border: none;
+        outline: none;
+        flex: 1;
+        padding: 10px;
+        border-radius: 30px;
+        font-size: 16px;
+        background: transparent;
+        transition: color 0.3s;
+    }
+
+    .search-container:focus-within .search-input {
+        color: white;
+    }
+
+    .search-button {
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        font-size: 18px;
+        color: #555;
+        padding: 10px;
+        transition: color 0.3s;
+    }
+
+    .search-container:focus-within .search-button {
+        color: #ffcc00;
+    }
+</style>
+
+<script>
+    document.getElementById("search-button").addEventListener("click", function() {
+        let query = document.getElementById("search-input").value;
+        if (query.trim()) {
+            window.location.href = `/search/?q=${encodeURIComponent(query)}`;
+        }
+    });
+
+    document.getElementById("search-input").addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            document.getElementById("search-button").click();
+        }
+    });
+</script>
+
+{% include 'components/_carousel.html'%}
+
+
+<!-- Advantages Section -->
+<div class="advantages d-flex justify-content-between align-items-center mt-4">
+    <div class="text-center advantage-item">
+        <i class="fa-solid fa-truck fa-2xl"></i>
+        <p class="mt-2 fw-bold">Доставка по всему Узбекистану</p>
+    </div>
+    <div class="text-center advantage-item">
+        <i class="fa-solid fa-dumbbell fa-2xl"></i>
+        <p class="mt-2 fw-bold">Широкий ассортимент товаров</p>
+    </div>
+    <div class="text-center advantage-item">
+        <i class="fa-solid fa-percent fa-2xl"></i>
+        <p class="mt-2 fw-bold">Скидки и акции</p>
+    </div>
+    <div class="text-center advantage-item">
+        <i class="fa-solid fa-shield-alt fa-2xl"></i>
+        <p class="mt-2 fw-bold">Гарантия и возврат</p>
+    </div>
+</div>
+
+<hr>
+{% endblock main %}
+
+<style>
+    /* Подключение шрифта */
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap');
+
+    body {
+        font-family: 'Montserrat', sans-serif;
+        background-color: #f4f4f4;
+    }
+
+    .advantages {
+        display: flex;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .advantage-item {
+        background: linear-gradient(135deg, #001f4d, #004aad);
+        color: white;
+        padding: 20px;
+        border-radius: 10px;
+        width: 200px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .advantage-item:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .advantage-item i {
+        font-size: 50px;
+        color: #ffcc00;
+    }
+
+    .advantage-item p {
+        font-size: 16px;
+        font-weight: bold;
+        margin-top: 10px;
+    }
+
+    /* Спортивный стиль для выпадающего меню */
+    .dropdown-menu {
+        min-width: 220px;
+        border-radius: 10px;
+        box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2);
+        background: white;
+        font-weight: bold;
+        border: 2px solid #004aad;
+    }
+
+    .dropdown-submenu {
+        position: relative;
+    }
+
+    .dropdown-submenu .dropdown-menu {
+        position: absolute;
+        left: 100%;
+        top: 0;
+        display: none;
+        min-width: 200px;
+        border-radius: 10px;
+        border: 2px solid #004aad;
+    }
+
+    .dropdown-submenu:hover > .dropdown-menu {
+        display: block;
+    }
+
+    .dropdown-item {
+        padding: 12px;
+        text-decoration: none;
+        color: black;
+        font-weight: bold;
+        transition: background 0.3s, color 0.3s;
+    }
+
+    .dropdown-item:hover {
+        background-color: #ffcc00;
+        color: #001f4d;
+        font-weight: bold;
+    }
+</style>
+
+{% block extra_js %}
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll('.dropdown-submenu').forEach(function (submenu) {
+            submenu.addEventListener("mouseenter", function () {
+                let dropdownMenu = this.querySelector(".dropdown-menu");
+                if (dropdownMenu) {
+                    dropdownMenu.style.display = "block";
+                }
+            });
+
+            submenu.addEventListener("mouseleave", function () {
+                let dropdownMenu = this.querySelector(".dropdown-menu");
+                if (dropdownMenu) {
+                    dropdownMenu.style.display = "none";
+                }
+            });
+        });
+    });
+</script>
+
+{% endblock extra_js %}

@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+{% load static %}
+{% block carousel %}
+{% endblock carousel %}
+<link rel="stylesheet" href="{% static 'css/styles.css' %}">
+
+{% block main %}
+<div class="container mt-5">
+    <h2 class="fw-bold">Корзина</h2>
+    <div class="row">
+        <!-- Левая часть: товары -->
+        <div class="col-md-8">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Товар</th>
+                    <th>Цена</th>
+                    <th>Кол-во</th>
+                    <th>Сумма</th>
+                    <th></th>
+                </tr>
+                </thead>
+                <tbody id="cart-items">
+                {% for item in cart.items.all %}
+                <tr>
+                    <td>
+                        <img src="{{ item.product.image.url }}" width="50">
+                        {{ item.product.name }}
+                    </td>
+                    <td><b>{{ item.product.price }} сўм</b></td>
+                    <td>
+                        <button class="btn btn-outline-secondary btn-sm update-quantity"
+                                data-product="{{ item.product.id }}" data-action="decrease">-
+                        </button>
+                        <span>{{ item.quantity }}</span>
+                        <button class="btn btn-outline-secondary btn-sm update-quantity"
+                                data-product="{{ item.product.id }}" data-action="increase">+
+                        </button>
+                    </td>
+                    <td><b>{{ item.get_total_price }} сўм</b></td>
+                    <td>
+                        <button class="btn btn-danger btn-sm remove-from-cart" data-product="{{ item.product.id }}">
+                            Удалить
+                        </button>
+
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            <a href="{{ previous_page }}" class="btn btn-light">← К покупкам</a>
+
+            <a href="{% url 'shop_cart:clear' %}" class="btn btn-dark">Очистить корзину</a>
+        </div>
+
+        <!-- Правая часть: расчёт -->
+        <div class="col-md-4">
+            <div class="p-4 border rounded">
+                <h4 class="fw-bold">Расчет</h4>
+                <p>Сумма: <b id="total-price">{{ cart.get_total_cost }} сўм</b></p>
+                <a href="#!" class="btn btn-primary">Оформить заказ</a>
+
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        // Обновление количества товаров
+        document.querySelectorAll(".update-quantity").forEach(button => {
+            button.addEventListener("click", function () {
+                let productId = this.dataset.product;
+                let action = this.dataset.action;
+
+                fetch(`/cart/update/${productId}/${action}/`, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": getCookie("csrftoken"),
+                        "Content-Type": "application/json"
+                    }
+                }).then(() => {
+                    location.reload();  // 🔄 Автоматическая перезагрузка страницы
+                });
+            });
+        });
+
+        // Удаление товара из корзины
+        document.querySelectorAll(".remove-from-cart").forEach(button => {
+            button.addEventListener("click", function () {
+                let productId = this.dataset.product;
+
+                fetch(`/cart/remove/${productId}/`, {
+                    method: "POST",
+                    headers: {
+                        "X-CSRFToken": getCookie("csrftoken"),
+                        "Content-Type": "application/json"
+                    }
+                }).then(() => {
+                    location.reload();  // 🔄 Автоматическая перезагрузка страницы
+                });
+            });
+        });
+
+        // Функция для получения CSRF-токена
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== "") {
+                let cookies = document.cookie.split(";");
+                for (let i = 0; i < cookies.length; i++) {
+                    let cookie = cookies[i].trim();
+                    if (cookie.startsWith(name + "=")) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+    });
+</script>
+
+
+{% endblock main %}
+
+
+

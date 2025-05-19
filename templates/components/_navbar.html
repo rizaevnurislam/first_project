@@ -1,0 +1,179 @@
+<nav class="navbar navbar-expand-lg navbar-dark" style="background-color: rgb(0, 10, 49);">
+    <div class="container d-flex align-items-center">
+        <a class="navbar-brand mb-3" href="{% url 'index' %}"><b>SportX</b></a>
+
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+
+                    <div class="dropdown mb-3">
+                        <button class="btn btn dropdown-toggle text-light" type="button" data-bs-toggle="dropdown"
+                                aria-expanded="false">
+                            <b>Категории</b>
+                        </button>
+
+                        <ul class="dropdown-menu">
+                            {% for category in categories %}
+                            <li class="dropdown-submenu">
+                                <a class="dropdown-item dropdown-toggle"
+                                   href="{% url 'shop:category_detail' category.id %}">
+
+                                    {{ category.name }}
+                                </a>
+                                {% if category.children.all %}
+                                <ul class="dropdown-menu">
+                                    {% for subcategory in category.children.all %}
+                                    <li class="dropdown-submenu">
+                                        <a class="dropdown-item dropdown-toggle"
+                                           href="{% url 'shop:category_detail' subcategory.id %}">
+                                            {{ subcategory.name }}
+                                        </a>
+                                        {% if subcategory.children.all %}
+                                        <ul class="dropdown-menu">
+                                            {% for sub_subcategory in subcategory.children.all %}
+                                            <li>
+                                                <a class="dropdown-item"
+                                                   href="{% url 'shop:category_detail' sub_subcategory.id %}">
+                                                    {{ sub_subcategory.name }}
+                                                </a>
+                                            </li>
+                                            {% endfor %}
+                                        </ul>
+                                        {% endif %}
+                                    </li>
+                                    {% endfor %}
+                                </ul>
+                                {% endif %}
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link active" aria-current="page" href="{% url 'about_company_url'%}"><b>О
+                        компании</b></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-light" href="{% url 'delivery_payment_url'%}"><b>Доставка и оплата</b></a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-light" href="{% url 'contacts_url'%}"><b>Контакты</b></a>
+                </li>
+            </ul>
+            <ul class="navbar-nav me mb-3 mb-lg-4.5">
+
+                <a href="{% url 'shop:favorites' %}" class="btn btn-light position-relative favorite-btn">
+
+
+                    <i class="fas fa-heart text-danger"></i>
+                    <span id="favorite-count-badge"
+                          class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+        {% if favorites %}
+            {{ favorites.count }}
+        {% else %}
+            0
+        {% endif %}
+    </span>
+                </a>
+
+                <a href="{% url 'shop_cart:cart_detail' %}" class="btn btn-success position-relative">
+                    <i class="fas fa-shopping-basket"></i>
+                    <span id="cart-count-badge"
+                          class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+    {% if cart %}
+        {{ cart.items.count }}
+    {% else %}
+        0
+    {% endif %}
+</span>
+                </a>
+
+
+                {% if not request.user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link text-light" href="{% url 'login_url' %}">Sign in</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link text-light" href="{% url 'registration_url' %}">Sign up</a>
+                </li>
+                {% else %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown"
+                       aria-expanded="false">
+                        <b>Hello, {{ request.user.username }} !</b>
+                    </a>
+                    <ul class="dropdown-menu">
+
+
+                        <li><a class="dropdown-item" href="{% url 'logout_url' %}">Sign out</a></li>
+                    </ul>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<style>
+    .container {
+        margin-bottom: -15px;
+    }
+</style>
+
+<style>
+    .favorite-btn {
+        position: relative;
+        right: 15px; /* Сдвинет кнопку левее */
+}
+</style>
+{% block extra_js %}
+<script>
+
+    document.addEventListener("DOMContentLoaded", function () {
+        document.querySelectorAll('.dropdown-submenu').forEach(function (submenu) {
+            submenu.addEventListener("mouseenter", function () {
+                let dropdownMenu = this.querySelector(".dropdown-menu");
+                if (dropdownMenu) {
+                    dropdownMenu.style.display = "block";
+                }
+            });
+
+            submenu.addEventListener("mouseleave", function () {
+                let dropdownMenu = this.querySelector(".dropdown-menu");
+                if (dropdownMenu) {
+                    dropdownMenu.style.display = "none";
+                }
+            });
+        });
+    });
+</script>
+<script>
+    function updateFavoriteCount() {
+        fetch("{% url 'shop:favorites_count' %}", {
+            headers: { "X-Requested-With": "XMLHttpRequest" }
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log("Favorite Count Response:", data); // Лог для проверки
+            let favoriteBadge = document.getElementById("favorite-count-badge");
+            if (favoriteBadge) {
+                favoriteBadge.textContent = data.favorite_count;
+                favoriteBadge.style.display = data.favorite_count > 0 ? "inline-block" : "none";
+            }
+        })
+        .catch(error => console.error("Ошибка обновления избранного:", error));
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        updateFavoriteCount();
+    });
+</script>
+
+
+{% endblock extra_js %}
